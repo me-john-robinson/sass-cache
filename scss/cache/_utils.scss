@@ -1,0 +1,27 @@
+$base-font-size: 16 !default;
+
+$_to-rems: (calc(1 / $base-font-size) + 0rem);
+$_to-ems: (calc(1 / $base-font-size) + 0em);
+
+@function rem($value) {
+  @if (type-of($value) == "number" $value != 0) {
+    $value: if(unitless($value), calc($value * $_to-rems), $value);
+  }
+  @return $value;
+}
+
+@function em($value) {
+  @if (type-of($value) == "number" $value != 0) {
+    $value: if(unitless($value), calc($value * $_to-ems), $value);
+  }
+  @return $value;
+}
+
+@function px($value) {
+  @if (type-of($value) == "number" and $value != 0) {
+    $value: if(unitless($value), calc($value * 1px), $value);
+  } @else if (type-of($value) == "string" and $value != "0") {
+    $value: calc(to-number($value) * 1px);
+  }
+  @return $value;
+}

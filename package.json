@@ -1,0 +1,27 @@
+{
+  "name": "sass-with-cache",
+  "version": "0.0.1",
+  "main": "index.js",
+  "scss": "scss/index.scss",
+  "files": [
+    "scss"
+  ],
+  "author": "John Robinson <me.john.robinson@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/me-john-robinson/sass-cache.git"
+  },
+  "homepage": "https://github.com/me-john-robinson/sass-cache#readme",
+  "keywords": [
+    "cache",
+    "sass",
+    "compose"    
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/me-john-robinson/sass-cache/issues"
+  },
+  "devDependencies": {
+    "sass": "^1.49.0"
+  }
+}

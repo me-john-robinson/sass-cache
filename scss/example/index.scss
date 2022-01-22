@@ -1,0 +1,33 @@
+@use "../cache" with (
+  $theme-root: ":root",
+  $theme-attribute: "data-theme"
+);
+
+@use "foundations/color";
+@use "foundations/space";
+
+@include cache.use-prefixes(
+  (
+    "backdrop-filter": (
+      webkit,
+    ),
+  )
+);
+
+@include cache.output-root-vars();
+@include cache.output-theme-vars("dark");
+@include cache.output-rules("theme", "padding", "margin");
+
+@include cache.with-theme("dark") {
+  body {
+    background-color: cache.alpha(var(--color-primary), 0.2);
+    color: cache.lightness(var(--color-primary), 45);
+  }
+}
+
+@include cache.with-theme("default") {
+    body {
+        background-color: cache.alpha(var(--color-secondary), 0.2);
+        color: cache.lightness(var(--color-secondary), 45);
+    }
+}

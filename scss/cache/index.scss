@@ -1,0 +1,520 @@
+@use "transforms";
+
+$base-font-size: 16 !default;
+$theme-root: ":root" !default;
+$theme-attribute: "data-theme" !default;
+
+@forward "utils" with (
+  $base-font-size: $base-font-size
+);
+
+@forward "transforms" show alpha, lightness, saturation;
+
+$root-var-cache: ();
+$scope-var-cache: ();
+$rule-cache: ();
+$prefixes: ();
+$theme-colors: ();
+
+/// Clears all root variables.
+/// @group variables
+@mixin reset-root-vars() {
+  $root-var-cache: () !global;
+}
+
+/// Clears scoped variables.
+/// @param {string} $scope - If defined, clears scoped variables with key, otherwise clears all.
+@mixin reset-scope-vars($scope: null) {
+  @if ($scope) {
+    @if (map-has-key($scope-var-cache, $scope)) {
+      $scope-var-cache: map-merge($scope-var-cache, $scope: ()) !global;
+    }
+  } @else {
+    $scope-var-cache: () !global;
+  }
+}
+
+/// Adds a root css variable declaration to the cache.
+/// @param {string} $key - The key to use, without the leading --.
+/// @param {string|number|list} $value - The value for the variable.
+///
+/// @example
+///   $blue: add-root-var('blue', rgb(0, 0, 255));
+@function add-root-var($key, $value) {
+  $root-var-cache: map-merge(
+    $root-var-cache,
+    (
+      $key: $value,
+    )
+  ) !global;
+
+  @return $value;
+}
+
+/// Adds a map of root variables
+/// @param {map} $var-map - The map of variables.
+/// @return {map} $var-map.
+///
+/// @example
+///   $mapped: add-root-vars(
+///     (
+///       "color-blue": rgba(0, 0, 255),
+///       "color-red": rgba(255, 0, 0),
+///       "color-green": rgba(0, 255, 0)
+///     )
+///   );
+@function add-root-vars($var-map) {
+  @if (type-of($var-map) == "map") {
+    @each $var, $value in $var-map {
+      $result: add-root-var($var, $value);
+    }
+  } @else {
+    @error "add-root-vars expects a map.";
+  }
+  @return $var-map;
+}
+
+/// Returns a root variable value from the cache by it's key
+/// @param {string} $key - The key of the variable to return.
+/// @return {string|number|list} The value of the variable.
+@function get-root-var($key) {
+  @return map-get($root-var-cache, $key);
+}
+
+/// Adds a scoped variable to the speficied cache.
+/// @param {string} $scope - The scope key to use.
+/// @param {string} $key - The key of the variable to use.
+/// @param {string|number|list} $value - The value of the variable.
+/// @return {string|number|list} - The value passed in.
+///
+/// @example
+///  $blue-dark: add-scope-var('dark', 'color-blue', lighten(rgb(0, 0, 255), 10%));
+@function add-scope-var($scope, $key, $value) {
+  @if (not $scope) {
+    @error "add-scope-var requires a valid scope.";
+  }
+  @if (type-of($key) != "string" or not length($key)) {
+    @error "add-scope-var requires a string key.";
+  }
+  @if ($value == null) {
+    @error "add-scope-var requires a valid value.";
+  }
+
+  @if (not map-has-key($scope-var-cache, $key)) {
+    $scope-var-cache: map-merge(
+      $scope-var-cache,
+      (
+        $scope: (
+          $key: $value,
+        ),
+      )
+    ) !global;
+  } @else {
+    $scoped: map-get($scope-var-cache, $scope);
+    $scoped: map-merge(
+      $scoped,
+      (
+        $key: $value,
+      )
+    );
+    $scope-var-cache: map-merge(
+      $scope-var-cache,
+      (
+        $scope: $scoped,
+      )
+    );
+  }
+  @return $value;
+}
+
+/// Adds a map of scoped variables to the cache.
+/// @param {string} $scope - The scope to use.
+/// @param {map} $map - A map of variables
+/// @see {function} add-scope-var
+/// @return {map} - The map of scoped variables passed in.
+@function add-scope-vars($scope, $var-map) {
+  @if (type-of($var-map) == "map") {
+    @each $var, $value in $var-map {
+      $result: add-scope-var($scope, $var, $value);
+    }
+  } @else {
+    @error "add-scope-vars expects a map.";
+  }
+  @return $var-map;
+}
+
+/// Adds a theme variable to the cache.
+/// @param {string} $key - The key of the variable
+/// @param {string|number|list} $value - The value of the variable.
+/// @return {string|number|list} - The value passed in.
+/// @param {string} $theme [default] - The theme key to use, defaults to the default theme.
+///
+/// @example
+///   $dark-blue: add-theme-var("dark", "blue", #1F51FF);
+@function add-theme-var($key, $value, $theme: "default") {
+  @return add-scope-var(
+    "#{$theme-root}[#{$theme-attribute}=#{$theme}]",
+    $key,
+    $value
+  );
+}
+
+/// Adds a theme color to a theme cache.
+/// @param {string} $color - The key to use for the color, not an actual color.
+/// @param {number} $hue - The hue value.
+/// @param {number} $saturation - The saturation value.
+/// @param {number} $lightness - The lightness value.
+/// @param {string} $theme [default] - The theme scope.
+/// @return {color} The hsl value of the color.
+@function add-theme-color(
+  $color,
+  $hue,
+  $saturation,
+  $lightness,
+  $theme: "default"
+) {
+  @if (not map-has-key($theme-colors, $theme)) {
+    $theme-colors: map-merge(
+      $theme-colors,
+      (
+        $theme: (),
+      )
+    ) !global;
+  }
+
+  $colors: map-get($theme-colors, $theme);
+  $theme-colors: map-merge(
+    $theme-colors,
+    (
+      $theme:
+        map-merge(
+          $colors,
+          (
+            $color: (
+              $hue,
+              $saturation,
+              $lightness,
+            ),
+          )
+        ),
+    )
+  ) !global;
+
+  @return hsl($hue, $saturation, $lightness);
+}
+
+/// Adds multiple theme variables to the theme cache.
+/// @param {map} $var-map - The map of theme variables
+/// @param {string} $theme [default] - The theme scope.
+/// @return {map} - The map passed in.
+///
+/// @example 
+///  $map: add-theme-vars(
+///    (
+///      "color-red": rgb(255, 0, 0),
+///      "color-blue": rgb(0, 255, 0),
+///      "color-green": rgb(0, 0, 255)
+///    ));
+@function add-theme-vars($var-map, $theme: "default") {
+  @if (type-of($var-map) == "map") {
+    @each $var, $value in $var-map {
+      $result: add-theme-var($var, $value, $theme);
+    }
+  } @else {
+    @error "add-theme-vars expects a map.";
+  }
+  @return $var-map;
+}
+
+/// Outputs the css variable declarations at the root selector
+/// 
+/// @example
+///   // somewhere preceding...
+///   add-root-var("color-blue", rgb(0, 255, 0));
+///   // then
+///   @include output-root-vars();
+///
+/// @output
+///   :root {
+///     --color-blue: rgb(0, 255, 0);
+///   }
+@mixin output-root-vars() {
+  $root-cache: $root-var-cache;
+  @at-root {
+    :root {
+      @each $key, $value in $root-cache {
+        --#{$key}: #{$value};
+      }
+      $colors: map-get($theme-colors, "default");
+      @if ($colors) {
+        @each $color, $values in $colors {
+          @include transforms.defineColorHSL(
+            unquote("--color-#{$color}"),
+            $values...
+          );
+        }
+      }
+    }
+  }
+}
+
+/// Outputs the css variable declarations at a scope selector
+/// 
+/// @param {string} $scope - The scope to use.
+/// @example
+///   // somewhere preceding...
+///   add-scope-var('[data-theme=blue]', "color-primary", rgb(0, 255, 0));
+///   // then
+///   @include output-scope-vars('[data-theme=blue]');
+///   // then use the variable
+///   body {
+///     background-color: var(--color-primary);
+///   }
+/// @output
+///   [data-theme=blue] {
+///     --color-blue: rgb(0, 255, 0);
+///   }
+@mixin output-scope-vars($scope) {
+  $scope-cache: map-get($scope-var-cache, $scope);
+  @if ($scope-cache) {    
+    @at-root {
+      #{$scope} {
+        @each $key, $value in $scope-cache {
+          --#{$key}: #{$value};
+        }
+      }
+    }
+  }
+}
+
+/// Outputs all theme css variables at the theme selector
+/// @param {list} $themes - A list of themes
+/// @example
+///   // somewhere preceding...
+///   add-theme-var("color-primary", rgb(0, 255, 0), "dark");
+///   // then
+///   @include output-theme-vars('dark');
+///   // then use the variable
+///   body {
+///     background-color: var(--color-primary);
+///   }
+/// @output
+///   [data-theme=dark] {
+///     --color-primary: rgb(0, 255, 0);
+///   }
+@mixin output-theme-vars($themes...) {
+  @each $theme in $themes {
+    @include output-scope-vars(
+      "#{$theme-root}[#{$theme-attribute}=#{$theme}]"
+    );
+
+    @if (map-has-key($theme-colors, $theme)) {
+      $colors: map-get($theme-colors, $theme);
+      @each $color, $values in $colors {
+        @include transforms.defineColorHSL(
+          unquote("--color-#{$color}"),
+          $values...
+        );
+      }
+    }
+  }
+}
+
+/// Add a css rule
+/// @param {string} $namespace - The namespace of the rule, used to group rules.
+/// @param {string} $name - The name / selector of the rule.
+/// @param {list} $props - The properties of the rule
+///
+/// @example 
+///   @include add-rule(
+///     'core', /* namespace */
+///     'body-text', /* class selector */
+///     (font-family, "sans-serif"), /* font family prop */
+///     (color: var(--text-color)) /* color prop */
+///   );
+@mixin add-rule($namespace, $name, $props...) {
+  @if (not map-has-key($rule-cache, $namespace)) {
+    $rule-cache: map-merge(
+      $rule-cache,
+      (
+        $namespace: (),
+      )
+    ) !global;
+  }
+
+  $rule: ();
+
+  @each $prop, $value in $props {
+    @if (type-of($prop) == "string") {
+      @if ($value) {
+        $rule: map-merge(
+          $rule,
+          (
+            $prop: $value,
+          )
+        );
+      } @else {
+        @warn "Missing rule value for `#{$prop}`";
+      }
+    } @else if (type-of($prop) == "list") {
+      $last: null;
+      @each $curr in $prop {
+        $i: index($prop, $curr);
+        @if ($i % 2 == 0) {
+          $rule: map-merge(
+            $rule,
+            (
+              $last: nth($prop, $i),
+            )
+          );
+        } @else {
+          $last: nth($prop, $i);
+        }
+      }
+    } @else {
+      @warn "invalid rule type `#{$prop}` was `#{type-of($prop)}`.";
+    }
+  }
+
+  $ns: map-get($rule-cache, $namespace);
+
+  $rule-cache: map-merge(
+    $rule-cache,
+    (
+      $namespace:
+        map-merge(
+          $ns,
+          (
+            $name: $rule,
+          )
+        ),
+    )
+  ) !global;
+}
+
+/// Outputs the cached rules by namespace
+/// @param {list} $namespaces - A list of namespaces to include
+/// @output 
+///  .rule1 { ... }
+///   rule2 { ... }
+@mixin output-rules($namespaces...) {
+  @each $ns in $namespaces {
+    @include _output-rules($ns);
+  }
+}
+
+@mixin _output-rules($namespace) {
+  $rules: map-get($rule-cache, $namespace);
+  @if (type-of($rules) == "map") {
+    @at-root {
+      @each $cls, $props in $rules {
+        .#{$cls} {
+          @each $key, $value in $props {
+            $vendor-prefixes: map-get($prefixes, $key);
+            @if ($vendor-prefixes) {
+              @include _prefix(
+                (
+                  $key: $value,
+                ),
+                $vendor-prefixes
+              );
+            } @else {
+              #{$key}: $value;
+            }
+          }
+        }
+      }
+    }
+  } @else {
+    @debug $rule-cache;
+    @error "Unknown rule namespace: " + #{$namespace};
+  }
+}
+
+/// Adds vendor prefixes to all cache rules
+/// -- naive implementation, best to use auto-prefixer!
+/// @param {map} $prefix-map - A map of properties and prefixes.
+/// 
+/// @link https://developer.mozilla.org/en-US/docs/Glossary/Vendor_Prefix
+///
+/// @example
+///  @include use-prefixes(
+///    (
+///      "backdrop-filter": (webkit, moz)
+///    )
+///  );
+///  @include cache.add-rule('filters', 'with-backdrop', ( backdrop-filter: ...));
+///  @include cache.output-rules('filters');
+///  
+/// @output - after calling output-rules....
+///   .with-backdrop {
+///     -webkit-backdrop-filter: ...,
+///     -moz-backdrop-filter, ...,
+///     backdrop-filter: ...,
+///   }
+@mixin use-prefixes($prefix-map) {
+  @if (type-of($prefix-map) == "map") {
+    $prefixes: map-merge($prefixes, $prefix-map) !global;
+  } @else {
+    @error "use-prefixes expects a map of prefixes.";
+  }
+}
+
+@mixin _prefix($declarations, $prefixes: ()) {
+  @each $prop, $value in $declarations {
+    @each $prefix in $prefixes {
+      #{'-' + $prefix + '-' + $prop}: $value;
+    }
+    // standard value
+    #{$prop}: $value;
+  }
+}
+
+@function transform-vars($map, $transforms) {
+  $transformed: ();
+
+  @if (type-of($map) == "map") {
+    @if (type-of($transforms) == "map") {
+      @each $var, $value in $map {
+        $result: $value;
+        @each $transform, $args in $transforms {
+          @if (function-exists($transform)) {
+            $result: call(get-function($transform), $args...);
+          } @else {
+            @warn "Unknown transform function `#{$transform}`.";
+          }
+        }
+        $tranformed: map-merge(
+          $transformed,
+          (
+            $var: $result,
+          )
+        );
+      }
+    } @else {
+      @error "transform-vars expects $transforms to be a map.";
+    }
+  } @else {
+    @error "transform-vars expects $map to be a map.";
+  }
+
+  @return $transformed;
+}
+
+/// Scopes content to the designated theme
+/// @param {string} $theme - The theme scope
+/// @example 
+///   with-theme('dark') {
+///     --color-body: #212121;
+///     --color-text: #f1f1f1;
+///   }
+/// @output
+///   :root[data-theme=dark] {
+///      --color-body: #212121;
+///      --color-text: #f1f1f1;
+///   }
+@mixin with-theme($theme) {
+  #{$theme-root}[#{$theme-attribute}="#{$theme}"] {
+    @content;
+  }
+}

@@ -1,0 +1,25 @@
+@use "../cache";
+
+$colors: cache.add-root-vars(
+  (
+    "color-red": hsl(0, 100%, 50%),
+    "color-green": rgb(0, 255, 0),
+    "color-blue": rgb(0, 0, 255),
+  )
+);
+
+$red: cache.add-theme-color('red', 0, 100%, 50%);
+$primary: cache.add-theme-color('primary', 220, 89%, 56%);
+$secondary: cache.add-theme-color('secondary', 355, 90%, 61%);
+
+@include cache.add-rule(
+  "theme",
+  "text-blue",
+  ("color", var(--color-blue))
+);
+
+@include cache.add-rule(
+  "theme",
+  "text-red",
+  ("color", var(--color-red))
+);

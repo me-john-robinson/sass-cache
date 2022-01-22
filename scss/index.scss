@@ -1,0 +1,9 @@
+$base-font-size: 16 !default;
+$theme-root: ":root" !default;
+$theme-attribute: "data-theme" !default;
+
+@forward "cache" with (
+    $base-font-size: $base-font-size,
+    $theme-root: $theme-root,
+    $theme-attribute: $theme-attribute
+);
