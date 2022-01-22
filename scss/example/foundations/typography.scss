@@ -1,0 +1,59 @@
+@use "../../cache";
+
+$default-font-size: cache.add-root-var("default-font-size", 16px);
+
+@include cache.add-rule(
+  "font",
+  "%heading",
+  (
+    font-family: unquote("'Roboto', sans-serif"),
+  ),
+  (
+    font-weight: 700,
+  ),
+  (
+    line-height: 1.5,
+  ),
+  (
+    font-size: var(--default-font-size),
+  )
+);
+
+@include cache.extend-rule(
+  "font",
+  "%heading",
+  "h1",
+  (
+    font-size: 24px,
+  )
+);
+@include cache.extend-rule(
+  "font",
+  "%heading",
+  "h2",
+  (
+    font-size: 22px,
+  )
+);
+
+@include cache.extend-rule(
+  "font",
+  "%heading",
+  "title",
+  (
+    font-size: 32px,
+    font-family: unquote("'Montserrat', sans-serif"),
+  )
+);
+
+@include cache.extend-rule(
+  "font",
+  "%heading",
+  "subheading",
+  (
+    font-size: 18px,
+    font-family: unquote("'Montserrat', sans-serif"),
+    font-weight: 600,
+    line-height: 1.3
+  )
+);

@@ -1,4 +1,4 @@
-@use "../cache";
+@use "../../cache";
 
 $space-px: cache.add-root-var("space-px", cache.rem(1));
 $space-sm: cache.add-root-var("space-sm", cache.rem(4));

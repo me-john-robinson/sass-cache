@@ -122,7 +122,7 @@ $theme-colors: ();
       (
         $scope: $scoped,
       )
-    );
+    ) !global;
   }
   @return $value;
 }
@@ -208,7 +208,7 @@ $theme-colors: ();
 /// @param {string} $theme [default] - The theme scope.
 /// @return {map} - The map passed in.
 ///
-/// @example 
+/// @example
 ///  $map: add-theme-vars(
 ///    (
 ///      "color-red": rgb(255, 0, 0),
@@ -227,7 +227,7 @@ $theme-colors: ();
 }
 
 /// Outputs the css variable declarations at the root selector
-/// 
+///
 /// @example
 ///   // somewhere preceding...
 ///   add-root-var("color-blue", rgb(0, 255, 0));
@@ -259,7 +259,7 @@ $theme-colors: ();
 }
 
 /// Outputs the css variable declarations at a scope selector
-/// 
+///
 /// @param {string} $scope - The scope to use.
 /// @example
 ///   // somewhere preceding...
@@ -276,7 +276,7 @@ $theme-colors: ();
 ///   }
 @mixin output-scope-vars($scope) {
   $scope-cache: map-get($scope-var-cache, $scope);
-  @if ($scope-cache) {    
+  @if ($scope-cache) {
     @at-root {
       #{$scope} {
         @each $key, $value in $scope-cache {
@@ -304,9 +304,7 @@ $theme-colors: ();
 ///   }
 @mixin output-theme-vars($themes...) {
   @each $theme in $themes {
-    @include output-scope-vars(
-      "#{$theme-root}[#{$theme-attribute}=#{$theme}]"
-    );
+    @include output-scope-vars("#{$theme-root}[#{$theme-attribute}=#{$theme}]");
 
     @if (map-has-key($theme-colors, $theme)) {
       $colors: map-get($theme-colors, $theme);
@@ -325,7 +323,7 @@ $theme-colors: ();
 /// @param {string} $name - The name / selector of the rule.
 /// @param {list} $props - The properties of the rule
 ///
-/// @example 
+/// @example
 ///   @include add-rule(
 ///     'core', /* namespace */
 ///     'body-text', /* class selector */
@@ -392,9 +390,27 @@ $theme-colors: ();
   ) !global;
 }
 
+@mixin extend-rule($namespace, $target, $name, $props) {
+  $new-rule: ();
+  $existing: map-get(map-get($rule-cache, $namespace), $target);
+
+  @if ($existing) {
+    //$new-rule: map-merge($new-rule, $existing);
+    @each $key, $value in $existing {
+      $new-rule: append($new-rule, ($key, $value));
+    }
+
+    @each $key, $value in $props {
+      $new-rule: append($new-rule, ($key, $value));
+    }
+
+    @include add-rule($namespace, $name, $new-rule...);
+  }
+}
+
 /// Outputs the cached rules by namespace
 /// @param {list} $namespaces - A list of namespaces to include
-/// @output 
+/// @output
 ///  .rule1 { ... }
 ///   rule2 { ... }
 @mixin output-rules($namespaces...) {
@@ -408,18 +424,22 @@ $theme-colors: ();
   @if (type-of($rules) == "map") {
     @at-root {
       @each $cls, $props in $rules {
-        .#{$cls} {
-          @each $key, $value in $props {
-            $vendor-prefixes: map-get($prefixes, $key);
-            @if ($vendor-prefixes) {
-              @include _prefix(
-                (
-                  $key: $value,
-                ),
-                $vendor-prefixes
-              );
-            } @else {
-              #{$key}: $value;
+        // May be a selector
+        @debug $cls + " " + str-slice($cls, 1, 1);
+        @if (str-slice($cls, 1, 1) != "%") {
+          .#{$cls} {
+            @each $key, $value in $props {
+              $vendor-prefixes: map-get($prefixes, $key);
+              @if ($vendor-prefixes) {
+                @include _prefix(
+                  (
+                    $key: $value,
+                  ),
+                  $vendor-prefixes
+                );
+              } @else {
+                #{$key}: $value;
+              }
             }
           }
         }
@@ -434,7 +454,7 @@ $theme-colors: ();
 /// Adds vendor prefixes to all cache rules
 /// -- naive implementation, best to use auto-prefixer!
 /// @param {map} $prefix-map - A map of properties and prefixes.
-/// 
+///
 /// @link https://developer.mozilla.org/en-US/docs/Glossary/Vendor_Prefix
 ///
 /// @example
@@ -445,7 +465,7 @@ $theme-colors: ();
 ///  );
 ///  @include cache.add-rule('filters', 'with-backdrop', ( backdrop-filter: ...));
 ///  @include cache.output-rules('filters');
-///  
+///
 /// @output - after calling output-rules....
 ///   .with-backdrop {
 ///     -webkit-backdrop-filter: ...,
@@ -503,7 +523,7 @@ $theme-colors: ();
 
 /// Scopes content to the designated theme
 /// @param {string} $theme - The theme scope
-/// @example 
+/// @example
 ///   with-theme('dark') {
 ///     --color-body: #212121;
 ///     --color-text: #f1f1f1;

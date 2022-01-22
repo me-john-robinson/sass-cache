@@ -7,35 +7,24 @@
   @return hsla($color-h, $color-s, $color-l, $opacity);
 }
 
-@function lightness($color, $lightnessMultiplier) {
+@function lightness($color, $lightness) {
   $color: str-replace($color, "var(");
   $color: str-replace($color, ")");
   $color-h: var(#{$color + "-h"});
   $color-s: var(#{$color + "-s"});
   $color-l: var(#{$color + "-l"});
-  @debug type-of($lightnessMultiplier);
-  @if (type-of($lightnessMultiplier) == "number" and $lightnessMultiplier > 1) {
-      $lightnessMultiplier: calc($lightnessMultiplier / 100);
-  }
-  @if (not unitless($lightnessMultiplier)) {
-      @error "lightness transform multiplier should be a number. Exclude the % sign.";
-  }
-  @return hsl($color-h, $color-s, calc(#{$color-l} * #{$lightnessMultiplier}));
+
+  @return hsl($color-h, $color-s, $lightness);
 }
 
-@function saturation($color, $saturationMultiplier) {
+@function saturation($color, $saturation) {
   $color: str-replace($color, "var(");
   $color: str-replace($color, ")");
   $color-h: var(#{$color + "-h"});
   $color-s: var(#{$color + "-s"});
   $color-l: var(#{$color + "-l"});
-  @if (type-of($saturationMultiplier) == "number" and $saturationMultiplier > 1) {
-      $saturationMultiplier: calc($saturationMultiplier / 100);
-  }
-  @if (not unitless($saturationMultiplier)) {
-    @error "saturation transform multiplier should be a number. Exclude the % sign.";
-}
-  @return hsl($color-h, calc(#{$color-s} * #{$saturationMultiplier}), $color-l);
+
+  @return hsl($color-h, $saturation, $color-l);
 }
 
 // replace substring with another string

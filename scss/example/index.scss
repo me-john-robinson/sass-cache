@@ -5,6 +5,7 @@
 
 @use "foundations/color";
 @use "foundations/space";
+@use "foundations/typography";
 
 @include cache.use-prefixes(
   (
@@ -16,7 +17,7 @@
 
 @include cache.output-root-vars();
 @include cache.output-theme-vars("dark");
-@include cache.output-rules("theme", "padding", "margin");
+@include cache.output-rules("theme", "padding", "margin", "font");
 
 @include cache.with-theme("dark") {
   body {
