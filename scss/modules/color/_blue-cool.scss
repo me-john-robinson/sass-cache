@@ -1,0 +1,26 @@
+@use "../../cache";
+@use "./utils";
+
+$lighter: #d9e8f6 !default;
+$light: #73b3e7 !default;
+$base: #005ea2 !default;
+$vivid: #0050d8 !default;
+$dark: #1a4480 !default;
+$darker: #162e51 !default;
+
+$_values: ($lighter, $light, $base, $vivid, $dark, $darker);
+
+$_text-colors: utils.get-color-map("text-blue-cool", "color", $_values);
+$_background-colors: utils.get-color-map("bg-blue-cool", "background-color", $_values);
+
+@include cache.add-rules(
+    "color:blue-cool:text",
+    $_text-colors    
+);
+
+@include cache.add-rules(
+    "color:blue-cool:background",
+    $_background-colors   
+);
+
+@include cache.output-rules("color:blue-cool:text", "color:blue-cool:background");

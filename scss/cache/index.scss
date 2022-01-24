@@ -1,14 +1,13 @@
 @use "transforms";
+@use "media";
 
 $base-font-size: 16 !default;
 $theme-root: ":root" !default;
 $theme-attribute: "data-theme" !default;
 
-@forward "utils" with (
-  $base-font-size: $base-font-size
-);
-
+@forward "utils";
 @forward "transforms" show alpha, lightness, saturation;
+@forward "media";
 
 $root-var-cache: ();
 $scope-var-cache: ();
@@ -134,13 +133,26 @@ $theme-colors: ();
 /// @return {map} - The map of scoped variables passed in.
 @function add-scope-vars($scope, $var-map) {
   @if (type-of($var-map) == "map") {
-    @each $var, $value in $var-map {
-      $result: add-scope-var($scope, $var, $value);
+    $scoped: ();
+    @if (map-has-key($scope-var-cache, $scope)) {
+      $scoped: map-merge(
+        map-get($scope-var-cache, $scope),
+        $var-map);        
+    } @else {
+      $scoped: $var-map;
     }
+  
+    $scope-var-cache: map-merge(
+      $scope-var-cache,
+      (
+        $scope: $scoped
+      )
+    ) !global;
+
   } @else {
     @error "add-scope-vars expects a map.";
   }
-  @return $var-map;
+  @return map-get($scope-var-cache, $scope);
 }
 
 /// Adds a theme variable to the cache.
@@ -390,9 +402,43 @@ $theme-colors: ();
   ) !global;
 }
 
+/// Adds multiple css rules
+/// @param {string} $namespace - The namespace of the rule, used to group rules.
+/// @param {map} $rule-map - A map of rules.
+///
+/// @example
+///  @include add-rules(
+///    "colors:blue",
+///    (
+///      text-blue: ( color: var(--color-blue) ),
+///      text-blue-lighter: ( color: var(--color-blue-lighter) ),
+///      text-blue-darker: ( color: var(--color-blue-darker) )
+///    )
+///  );
+@mixin add-rules($namespace, $rule-map) {
+  @if (type-of($rule-map) == "map") {
+    @each $name, $props in $rule-map {
+      $rule-props: ();
+      @each $key, $value in $props {
+        $rule-props: append($rule-props, ($key, $value));
+      }
+
+      @include add-rule($namespace, $name, $rule-props...);
+    }
+  } @else {
+    @error "add-rules expects $rule-map to be a map.";
+  }
+}
+
 @mixin extend-rule($namespace, $target, $name, $props) {
   $new-rule: ();
-  $existing: map-get(map-get($rule-cache, $namespace), $target);
+  $ns: $namespace;
+
+  @if (_is-media-ns($namespace)) {
+    $ns: _get-media-ns($namespace);
+  }
+
+  $existing: map-get(map-get($rule-cache, $ns), $target);
 
   @if ($existing) {
     //$new-rule: map-merge($new-rule, $existing);
@@ -419,34 +465,37 @@ $theme-colors: ();
   }
 }
 
-@mixin _output-rules($namespace) {
-  $rules: map-get($rule-cache, $namespace);
-  @if (type-of($rules) == "map") {
-    @at-root {
-      @each $cls, $props in $rules {
-        // May be a selector
-        @debug $cls + " " + str-slice($cls, 1, 1);
-        @if (str-slice($cls, 1, 1) != "%") {
-          .#{$cls} {
-            @each $key, $value in $props {
-              $vendor-prefixes: map-get($prefixes, $key);
-              @if ($vendor-prefixes) {
-                @include _prefix(
-                  (
-                    $key: $value,
-                  ),
-                  $vendor-prefixes
-                );
-              } @else {
-                #{$key}: $value;
-              }
-            }
+@mixin _render-rules($rules) {
+  @each $cls, $props in $rules {
+    // May be a selector
+    @if (not _is-placeholder($cls)) {
+      .#{$cls} {
+        @each $key, $value in $props {
+          $vendor-prefixes: map-get($prefixes, $key);
+          @if ($vendor-prefixes) {
+            @include _prefix(
+              (
+                $key: $value,
+              ),
+              $vendor-prefixes
+            );
+          } @else {
+            #{$key}: $value;
           }
         }
       }
     }
+  }
+}
+
+@mixin _output-rules($namespace) {
+  $rules: map-get($rule-cache, $namespace);
+
+  @if (type-of($rules) == "map") {
+    @at-root {
+      @include _render-rules($rules);
+    }
   } @else {
-    @debug $rule-cache;
     @error "Unknown rule namespace: " + #{$namespace};
   }
 }
@@ -537,4 +586,27 @@ $theme-colors: ();
   #{$theme-root}[#{$theme-attribute}="#{$theme}"] {
     @content;
   }
+}
+
+@function _is-placeholder($str) {
+  @return str-index($str, "%") == 1;
+}
+
+@function _is-media-ns($ns) {
+  @return if($ns == null, false, str-index($ns, "@") != null);
+}
+
+@function _get-media-ns($ns) {
+  @if (not _is-media-ns($ns)) {
+    @return $ns;
+  } @else {
+    @return str-slice($ns, 0, str-index($ns, "@") - 1);
+  }
+}
+
+@function _get-media-bp($ns) {
+  @if (not _is-media-ns($ns)) {
+    @return null;
+  }
+  @return str-slice($ns, str-index($ns, "@") + 1);
 }

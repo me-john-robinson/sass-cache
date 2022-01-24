@@ -1,13 +1,13 @@
 @use "../../cache";
 
-$space-px: cache.add-root-var("space-px", cache.rem(1));
-$space-sm: cache.add-root-var("space-sm", cache.rem(4));
-$space-md: cache.add-root-var("space-md", cache.rem(8));
+// $space-px: cache.add-root-var("space-px", cache.rem(1));
+// $space-sm: cache.add-root-var("space-sm", cache.rem(4));
+// $space-md: cache.add-root-var("space-md", cache.rem(8));
 
-@include cache.add-rule('padding', 'p-px', ('padding', var(--space-px)));
-@include cache.add-rule('padding', 'p-sm', ('padding', var(--space-sm)));
-@include cache.add-rule('padding', 'p-md', ('padding', var(--space-md)));
-@include cache.add-rule('margin', 'm-px', ('margin', var(--space-px)));
-@include cache.add-rule('margin', 'm-sm', ('margin', var(--space-sm)));
-@include cache.add-rule('margin', 'm-md', ('margin', var(--space-md)));
+// @include cache.add-rule('padding', 'p-px', ('padding', var(--space-px)));
+// @include cache.add-rule('padding', 'p-sm', ('padding', var(--space-sm)));
+// @include cache.add-rule('padding', 'p-md', ('padding', var(--space-md)));
+// @include cache.add-rule('margin', 'm-px', ('margin', var(--space-px)));
+// @include cache.add-rule('margin', 'm-sm', ('margin', var(--space-sm)));
+// @include cache.add-rule('margin', 'm-md', ('margin', var(--space-md)));
 

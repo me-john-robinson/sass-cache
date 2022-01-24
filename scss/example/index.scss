@@ -3,9 +3,14 @@
   $theme-attribute: "data-theme"
 );
 
+@use "../modules/space" with (
+  $directions: ("l", "r", "t", "b", "x", "y")
+);
+
 @use "foundations/color";
-@use "foundations/space";
+//@use "foundations/space";
 @use "foundations/typography";
+@use "foundations/layout";
 
 @include cache.use-prefixes(
   (
@@ -17,7 +22,7 @@
 
 @include cache.output-root-vars();
 @include cache.output-theme-vars("dark");
-@include cache.output-rules("theme", "padding", "margin", "font");
+@include cache.output-rules("theme", "font", "space:padding");
 
 @include cache.with-theme("dark") {
   body {
@@ -27,8 +32,27 @@
 }
 
 @include cache.with-theme("default") {
-    body {
-        background-color: cache.alpha(var(--color-secondary), 0.2);
-        color: cache.lightness(var(--color-secondary), 45);
-    }
+  body {
+    background-color: cache.alpha(var(--color-secondary), 0.2);
+    color: cache.lightness(var(--color-secondary), 45);
+  }
+}
+
+@include cache.mq(xs) {
+  @include cache.output-rules("layout@xs");
+}
+@include cache.mq(sm) {
+  @include cache.output-rules("layout@sm");
+}
+@include cache.mq(md) {
+  @include cache.output-rules("layout@md");
+}
+@include cache.mq(lg) {
+  @include cache.output-rules("layout@lg");
+}
+@include cache.mq(xl) {
+  @include cache.output-rules("layout@xl");
+}
+@include cache.mq(xxl) {
+  @include cache.output-rules("layout@xxl");
 }

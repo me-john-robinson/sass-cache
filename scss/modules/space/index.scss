@@ -1,0 +1,89 @@
+@use "../../cache";
+
+$padding-prefix: "p" !default;
+$margin-prefix: "m" !default;
+
+$directions: false !default;
+
+$spacing: (
+  1: cache.rem(1),
+  2: cache.rem(2),
+  4: cache.rem(4),
+  8: cache.rem(8),
+  12: cache.rem(12),
+  16: cache.rem(16),
+  24: cache.rem(24),
+  32: cache.rem(32),
+  48: cache.rem(48)
+) !default;
+
+$direction-map: (
+  l: "-left",
+  r: "-right",
+  t: "-top",
+  b: "-bottom",
+);
+
+$p: $padding-prefix;
+$m: $margin-prefix;
+
+@each $space, $value in $spacing {
+  $var: cache.add-root-var("space-#{$space}", $value);
+
+  $space-var: var(unquote("--space-#{$space}"));
+
+  @include cache.add-rule(
+    "space:padding",
+    "#{$p}-#{$space}",
+    (padding, $space-var)
+  );
+
+  @include cache.add-rule(
+    "space:margin",
+    "#{$m}-#{$space}",
+    (margin, $space-var)
+  );
+
+  @if ($directions and type-of($directions == "list")) {
+    @each $direction in $directions {
+      @if ($direction == "x") {
+        @include cache.add-rule(
+          "space:padding",
+          "#{$p}x-#{$space}",
+          (padding-left, $space-var),
+          (padding-right, $space-var)
+        );
+        @include cache.add-rule(
+          "space:margin",
+          "#{$m}x-#{$space}",
+          (margin-left, $space-var),
+          (margin-right, $space-var)
+        );
+      } @else if ($direction == "y") {
+        @include cache.add-rule(
+          "space:padding",
+          "#{$p}y-#{$space}",
+          (padding-top, $space-var),
+          (padding-bottom, $space-var)
+        );
+        @include cache.add-rule(
+          "space:margin",
+          "#{$m}y-#{$space}",
+          (margin-top, $space-var),
+          (margin-bottom, $space-var)
+        );
+      } @else if (map-has-key($direction-map, $direction)) {
+        @include cache.add-rule(
+          "space:padding",
+          "#{$p}#{$direction}-#{$space}",
+          ("padding-" + map-get($direction-map, $direction), $space-var)
+        );
+        @include cache.add-rule(
+          "space:margin",
+          "#{$m}#{$direction}-#{$space}",
+          ("margin-" + map-get($direction-map, $direction), $space-var)
+        );
+      }
+    }
+  }
+}

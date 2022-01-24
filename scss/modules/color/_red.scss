@@ -1,0 +1,35 @@
+@use "../../cache";
+@use "./utils";
+
+$red-lighter: #f8dfe2 !default;
+$red-light: #f2938c !default;
+$red: #d83933 !default;
+$red-vivid: #e41d3d !default;
+$red-dark: #b50909 !default;
+$red-darker: #8b0a03 !default;
+
+$red-map: (
+    lighter: $red-lighter,
+    light: $red-light,
+    base: $red,
+    vivid: $red-vivid,
+    dark: $red-dark,
+    darker: $red-darker
+);
+
+$red-values: ($red-lighter, $red-light, $red, $red-vivid, $red-dark, $red-darker);
+
+$_text-colors: utils.get-color-map("text-red", "color", $red-values);
+$_background-colors: utils.get-color-map("bg-red", "background-color", $red-values);
+
+@include cache.add-rules(
+    "color:red:text",
+    $_text-colors    
+);
+
+@include cache.add-rules(
+    "color:red:background",
+    $_background-colors   
+);
+
+@include cache.output-rules("color:red:text", "color:red:background");

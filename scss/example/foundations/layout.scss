@@ -1,0 +1,79 @@
+@use "../../cache";
+
+$container-full: 100% !default;
+$container-xs: 100% !default;
+$container-sm: cache.rem(540) !default;
+$container-md: cache.rem(720) !default;
+$container-lg: cache.rem(960) !default;
+$container-xl: cache.rem(1140) !default;
+$container-xxl: cache.rem(1320) !default;
+
+$container-vars: cache.add-scope-vars("layout", (
+    "container-full": $container-full,
+    "container-xs": $container-xs,
+    "container-sm": $container-sm,
+    "container-md": $container-md,
+    "container-lg": $container-lg,
+    "container-xl": $container-xl,
+    "container-xxl": $container-xxl
+));
+
+@include cache.add-rule("layout", "container", (
+    (width, var(--container-full)),
+    (margin-right, auto),
+    (margin-left, auto)
+));
+
+@include cache.add-rule("layout", "%container", (
+    (width, var(--container-full)),
+    (margin-right, auto),
+    (margin-left, auto)
+));
+
+@include cache.extend-rule("layout@xs", "%container", "container", ( width: var(--container-xs)));
+@include cache.extend-rule("layout@sm", "%container", "container", ( width: var(--container-sm)));
+@include cache.extend-rule("layout@md", "%container", "container", ( width: var(--container-md)));
+@include cache.extend-rule("layout@lg", "%container", "container", ( width: var(--container-lg)));
+@include cache.extend-rule("layout@xl", "%container", "container", ( width: var(--container-xl)));
+@include cache.extend-rule("layout@xxl", "%container", "container", ( width: var(--container-xxl)));
+
+@include cache.extend-rule("layout@sm", "%container", "container-xs", ( width: var(--container-sm)));
+@include cache.extend-rule("layout@md", "%container", "container-xs", ( width: var(--container-md)));
+@include cache.extend-rule("layout@lg", "%container", "container-xs", ( width: var(--container-lg)));
+@include cache.extend-rule("layout@xl", "%container", "container-xs", ( width: var(--container-xl)));
+@include cache.extend-rule("layout@xxl", "%container", "container-xs", ( width: var(--container-xxl)));
+
+@include cache.extend-rule("layout@xs", "%container", "container-sm", ( width: var(--container-full)));
+@include cache.extend-rule("layout@sm", "%container", "container-sm", ( width: var(--container-sm)));
+@include cache.extend-rule("layout@md", "%container", "container-sm", ( width: var(--container-md)));
+@include cache.extend-rule("layout@lg", "%container", "container-sm", ( width: var(--container-lg)));
+@include cache.extend-rule("layout@xl", "%container", "container-sm", ( width: var(--container-xl)));
+@include cache.extend-rule("layout@xxl", "%container", "container-sm", ( width: var(--container-xxl)));
+
+@include cache.extend-rule("layout@xs", "%container", "container-md", ( width: var(--container-full)));
+@include cache.extend-rule("layout@sm", "%container", "container-md", ( width: var(--container-full)));
+@include cache.extend-rule("layout@md", "%container", "container-md", ( width: var(--container-md)));
+@include cache.extend-rule("layout@lg", "%container", "container-md", ( width: var(--container-lg)));
+@include cache.extend-rule("layout@xl", "%container", "container-md", ( width: var(--container-xl)));
+@include cache.extend-rule("layout@xxl", "%container", "container-md", ( width: var(--container-xxl)));
+
+@include cache.extend-rule("layout@xs", "%container", "container-lg", ( width: var(--container-full)));
+@include cache.extend-rule("layout@sm", "%container", "container-lg", ( width: var(--container-full)));
+@include cache.extend-rule("layout@md", "%container", "container-lg", ( width: var(--container-full)));
+@include cache.extend-rule("layout@lg", "%container", "container-lg", ( width: var(--container-lg)));
+@include cache.extend-rule("layout@xl", "%container", "container-lg", ( width: var(--container-xl)));
+@include cache.extend-rule("layout@xxl", "%container", "container-lg", ( width: var(--container-xxl)));
+
+@include cache.extend-rule("layout@xs", "%container", "container-xl", ( width: var(--container-full)));
+@include cache.extend-rule("layout@sm", "%container", "container-xl", ( width: var(--container-full)));
+@include cache.extend-rule("layout@md", "%container", "container-xl", ( width: var(--container-full)));
+@include cache.extend-rule("layout@lg", "%container", "container-xl", ( width: var(--container-lg)));
+@include cache.extend-rule("layout@xl", "%container", "container-xl", ( width: var(--container-xl)));
+@include cache.extend-rule("layout@xxl", "%container", "container-xl", ( width: var(--container-xxl)));
+
+@include cache.extend-rule("layout@xs", "%container", "container-xxl", ( width: var(--container-full)));
+@include cache.extend-rule("layout@sm", "%container", "container-xxl", ( width: var(--container-full)));
+@include cache.extend-rule("layout@md", "%container", "container-xxl", ( width: var(--container-full)));
+@include cache.extend-rule("layout@lg", "%container", "container-xxl", ( width: var(--container-full)));
+@include cache.extend-rule("layout@xl", "%container", "container-xxl", ( width: var(--container-full)));
+@include cache.extend-rule("layout@xxl", "%container", "container-xxl", ( width: var(--container-xxl)));

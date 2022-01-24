@@ -1,0 +1,15 @@
+@use "../../cache";
+
+$theme-names: ("default", "dark");
+
+$color-prefix: "color" !default;
+$body-background: #ffffff, #121212 !default;
+$body-text: #121212, #f1f1f1 !default;
+$surface-background: #f1f1f1, #444444 !default;
+$surface-text: #111111, #f1f1f1 !default;
+$surface-border: transparent, transparent !default;
+$surface-border-width: 0 !default;
+$control-background: #ffffff, #121212 !default;
+$control-text: #000000, #ffffff !default;
+$control-border: #cccccc, #444444 !default;
+$control-border-width: 1px !default;

@@ -1,0 +1,26 @@
+$color-keys: ("lighter", "light", "base", "vivid", "dark", "darker") !default;
+
+@function get-color-map($color-name, $prop, $colors, $keys: $color-keys) {
+  $map-colors: ();
+
+  @if (length($keys) == length($colors)) {
+    @each $key in $keys {
+      $i: index($keys, $key);
+      $color-value: nth($colors, $i);
+      $token: if($key == "base", "", "-#{$key}");
+      $map-colors: map-merge(
+        $map-colors,
+        (
+          #{$color-name}#{$token}: (
+            $prop: $color-value,
+          ),
+        )
+      );
+    }
+
+    @return $map-colors;
+
+  } @else {
+    @error "color-map expects $colors and color keys to be the same length.";
+  }
+}

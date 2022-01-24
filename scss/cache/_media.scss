@@ -1,0 +1,65 @@
+@use "utils" as *;
+
+$breakpoint-xs-min: rem(0) !default;
+$breakpoint-xs-max: rem(575) !default;
+$breakpoint-sm-min: rem(576) !default;
+$breakpoint-sm-max: rem(767) !default;
+$breakpoint-md-min: rem(768) !default;
+$breakpoint-md-max: rem(991) !default;
+$breakpoint-lg-min: rem(992) !default;
+$breakpoint-lg-max: rem(1199) !default;
+$breakpoint-xl-min: rem(1200) !default;
+$breakpoint-xl-max: rem(1399) !default;
+$breakpoint-xxl-min: rem(1400) !default;
+$breakpoint-xxl-max: rem(9999) !default;
+
+$bp-map: (
+  xs: (
+    $breakpoint-xs-min,
+    $breakpoint-xs-max,
+  ),
+  sm: (
+    $breakpoint-sm-min,
+    $breakpoint-sm-max,
+  ),
+  md: (
+    $breakpoint-md-min,
+    $breakpoint-md-max,
+  ),
+  lg: (
+    $breakpoint-lg-min,
+    $breakpoint-lg-max,
+  ),
+  xl: (
+    $breakpoint-xl-min,
+    $breakpoint-xl-max,
+  ),
+  xxl: (
+    $breakpoint-xxl-min,
+    $breakpoint-xxl-max,
+  ),
+);
+
+@mixin mq($bp) {
+  $min-max: map-get($bp-map, $bp);
+
+  @media screen and (min-width: #{nth($min-max, 1)}) and (max-width: #{nth($min-max, 2)}) {
+    @content;
+  }
+}
+
+@mixin mq-down($bp) {
+  $min-max: map-get($bp-map, $bp);
+
+  @media screen and (max-width: #{nth($min-max, 2)}) {
+    @content;
+  }
+}
+
+@mixin mq-up($bp) {
+  $min-max: map-get($bp-map, $bp);
+
+  @media screen and (min-width: #{nth($min-max, 1)}) {
+    @content;
+  }
+}
