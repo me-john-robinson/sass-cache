@@ -1,6 +1,6 @@
 {
   "name": "sass-with-cache",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "main": "index.js",
   "scss": "scss/index.scss",
   "files": [

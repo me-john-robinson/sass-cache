@@ -467,9 +467,13 @@ $theme-colors: ();
 
 @mixin _render-rules($rules) {
   @each $cls, $props in $rules {
-    // May be a selector
+    
     @if (not _is-placeholder($cls)) {
-      .#{$cls} {
+      $sel: if(str-slice($cls, 1, 1) == "[", "", ".");
+      $sel: if(str-slice($cls, 1, 1) == "#", "", $sel);
+      $sel: if(str-slice($cls, 1, 1) == "*", "", $sel);
+
+      #{$sel}#{$cls} {
         @each $key, $value in $props {
           $vendor-prefixes: map-get($prefixes, $key);
           @if ($vendor-prefixes) {

@@ -20,9 +20,13 @@
   )
 );
 
+@include cache.add-rule("layout", "#app, #app *, #app *:after, #app *:before", (
+  (box-sizing, border-box)
+));
+
 @include cache.output-root-vars();
 @include cache.output-theme-vars("dark");
-@include cache.output-rules("theme", "font", "space:padding");
+@include cache.output-rules("theme", "font", "space:padding", "layout");
 
 @include cache.with-theme("dark") {
   body {
